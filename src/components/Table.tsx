@@ -1,7 +1,14 @@
-import React, { useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { fetchUsers } from "../features/userSlice";
-import { RootState } from "../app/store";
+import React from "react";
+import {
+  Table as MuiTable,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  TableSortLabel,
+} from "@mui/material";
 
 interface TableProps {
   data: Array<{ [key: string]: any }>;
@@ -22,24 +29,36 @@ const Table = ({ data }: TableProps) => {
   };
 
   return (
-    <table>
-      <thead>
-        <tr>
-          {headers.map((header) => (
-            <th key={header}>{header}</th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {data.map((row, index) => (
-          <tr key={index}>
+    <TableContainer component={Paper}>
+      <MuiTable>
+        <TableHead>
+          <TableRow>
             {headers.map((header) => (
-              <td key={`${index}-${header}`}>{renderCell(row[header])}</td>
+              <TableCell key={header}>
+                <TableSortLabel>{header}</TableSortLabel>
+              </TableCell>
             ))}
-          </tr>
-        ))}
-      </tbody>
-    </table>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {data.map((row, index) => (
+            <TableRow 
+            key={index}
+            sx={{ 
+                backgroundColor: index % 2 === 0 ? "#f5f5f5" : "#ffffff",
+                '&:last-child td, &:last-child th': { border: 0 },
+              }}
+            >
+              {headers.map((header) => (
+                <TableCell key={`${index}-${header}`}>
+                  {renderCell(row[header])}
+                </TableCell>
+              ))}
+            </TableRow>
+          ))}
+        </TableBody>
+      </MuiTable>
+    </TableContainer>
   );
 };
 
