@@ -11,7 +11,11 @@ import {
   Alert,
   Paper,
   Stack,
+  IconButton,
+  Snackbar,
+  Slide,
 } from "@mui/material";
+import ClearIcon from "@mui/icons-material/Clear";
 
 interface Filters {
   name: string;
@@ -33,11 +37,22 @@ const UserTable: React.FC = () => {
     phone: "",
   });
 
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+
   useEffect(() => {
     if (status === "idle") {
       dispatch(fetchUsers());
     }
   }, [status, dispatch]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSnackbarOpen(false);
+    }, 6000);
+
+    return () => clearTimeout(timer);
+  }, [snackbarOpen]);
 
   if (status === "loading") {
     return (
@@ -77,8 +92,19 @@ const UserTable: React.FC = () => {
     const { name, value } = e.target;
     setFilters((prevFilters) => ({
       ...prevFilters,
-      [name]: value,
+      [name as keyof Filters]: value,
     }));
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      name: "",
+      username: "",
+      email: "",
+      phone: "",
+    });
+    setSnackbarMessage("Filters cleared!");
+    setSnackbarOpen(true);
   };
 
   return (
@@ -89,19 +115,50 @@ const UserTable: React.FC = () => {
       <Paper elevation={3} sx={{ padding: 2, marginBottom: 3 }}>
         <Stack spacing={2}>
           {["name", "username", "email", "phone"].map((field) => (
-            <TextField
-              key={field}
-              fullWidth
-              label={`Search by ${field}`}
-              name={field}
-              value={filters[field as keyof Filters]}
-              onChange={handleFilterChange}
-              margin="normal"
-            />
+            <Stack direction="row" alignItems="center" spacing={1} key={field}>
+              <TextField
+                key={field}
+                fullWidth
+                label={`Search by ${field}`}
+                name={field}
+                value={filters[field as keyof Filters]}
+                onChange={handleFilterChange}
+                margin="normal"
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <IconButton
+                        onClick={() =>
+                          setFilters((prevFilters) => ({
+                            ...prevFilters,
+                            [field]: "",
+                          }))
+                        }
+                      >
+                        <ClearIcon />
+                      </IconButton>
+                    ),
+                  },
+                }}
+              />
+            </Stack>
           ))}
+          <Stack direction="row" justifyContent="flex-end">
+            <IconButton color="primary" onClick={clearFilters}>
+              Clear Filters
+            </IconButton>
+          </Stack>
         </Stack>
       </Paper>
       <Table data={filteredUsers} />
+      <Snackbar
+        key={snackbarMessage}
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={() => setSnackbarOpen(false)}
+        TransitionComponent={(props) => <Slide {...props} direction="up" />}
+        message={snackbarMessage}
+      />
     </Box>
   );
 };
