@@ -1,24 +1,25 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import "./App.css";
+import { useFetchData } from "./app/useFetchData";
+import Table from "./components/Table";
 
 function App() {
+  const { data, loading, error } = useFetchData(
+    "https://jsonplaceholder.typicode.com/users"
+  );
+
+  if (loading) {
+    return <div>Loading data...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <h1>User information fetched from a JSONPlaceholder API</h1>
+      <Table data={data} />
     </div>
   );
 }
